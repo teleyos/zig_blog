@@ -1,34 +1,12 @@
 const std = @import("std");
 const zap = @import("zap");
 const zmpl = @import("zmpl");
-
-const allocator = std.heap.page_allocator;
-const Context = struct { foo: []const u8 = "default"};
-
-fn on_request(r: zap.Request) !void {
-    var data = zmpl.Data.init(allocator);
-    defer data.deinit();
-
-    var body = try data.object();
-
-    if (r.getParamSlice("name")) |name| {
-        try body.put("name", data.string(name));
-    }else{
-        r.sendError(error.NoNameQuery, null, 500);
-    }
-
-    if(zmpl.find("test")) |template| {
-        const output = try template.render(
-            &data,
-            Context,
-            .{},
-            .{}
-        );
-        try r.sendBody(output);
-    }
-}
+const routesUtils = @import("routesUtils.zig");
+const globals = @import("globals.zig");
 
 pub fn main() !void {
+    globals.routes = globals.RouteMap.initComptime(routesUtils.routesKV);
+    const on_request = try routesUtils.dispatcher();
     var listener = zap.HttpListener.init(.{
         .port = 3000,
         .on_request = on_request,
@@ -44,4 +22,3 @@ pub fn main() !void {
         .workers = 1,
     });
 }
-

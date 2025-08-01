@@ -7,5 +7,6 @@ Honestly, I'm just making this repo to have a way to have my boilerplate ready a
 
 ### TODO
 
+- [x] Basic routing
 - [ ] Make a killer landing page
 - [ ] Contact form and basic admin dashboard with HTMX, CSS and SQLite3
